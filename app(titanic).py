@@ -17,8 +17,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 import joblib
 
-# Load data
-df = pd.read_csv('titanic.csv')
 
 # Define features and target
 X = df[['Pclass', 'Sex', 'Age', 'Fare']]
