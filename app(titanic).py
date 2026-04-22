@@ -60,30 +60,5 @@ print("Random Forest Metrics:", get_metrics(y_test, rf_preds))
 # Save the best model (e.g., Random Forest) for deployment
 joblib.dump(rf_pipeline, 'titanic_model.pkl')
 
-pip install streamlit
-import streamlit as st
-import pandas as pd
-import joblib
 
-# Load the trained model
-model = joblib.load('titanic_model.pkl')
-
-st.title("Titanic Survival Predictor")
-
-# Input fields
-pclass = st.selectbox("Passenger Class", [1, 2, 3])
-sex = st.selectbox("Sex", ["male", "female"])
-age = st.slider("Age", 0, 100, 30)
-fare = st.number_input("Fare Paid", min_value=0.0, value=32.0)
-
-# Create a dataframe for the prediction
-input_data = pd.DataFrame([[pclass, sex, age, fare]],
-                          columns=['Pclass', 'Sex', 'Age', 'Fare'])
-
-if st.button("Predict"):
-    prediction = model.predict(input_data)[0]
-    if prediction == 1:
-        st.success("The passenger is predicted to SURVIVE.")
-    else:
-        st.error("The passenger is predicted NOT to survive.")
 
