@@ -7,56 +7,32 @@ Original file is located at
     https://colab.research.google.com/drive/1boZjpQIf3j85_dAOVvdV5kWeeN-pAOr3
 """
 
+import streamlit as st
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score
 import joblib
 
+# 1. Load the model (This is all you need, no CSV required!)
+model = joblib.load('titanic_model.pkl')
 
-# Define features and target
-X = df[['Pclass', 'Sex', 'Age', 'Fare']]
-y = df['Survived']
+st.title("🚢 Titanic Survival Predictor")
 
-# Train/Test Split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# 2. Create the input fields for the user
+pclass = st.selectbox("Passenger Class", [1, 2, 3])
+sex = st.selectbox("Sex", ["male", "female"])
+age = st.slider("Age", 0, 100, 30)
+fare = st.number_input("Fare Paid", min_value=0.0, value=32.0)
 
-# Preprocessing
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('cat', OneHotEncoder(handle_unknown='ignore'), ['Pclass', 'Sex']),
-        ('num', 'passthrough', ['Age', 'Fare'])
-    ])
+# 3. Put the inputs into a format the model understands
+input_data = pd.DataFrame([[pclass, sex, age, fare]], 
+                          columns=['Pclass', 'Sex', 'Age', 'Fare'])
 
-# Modeling - Logistic Regression
-lr_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                              ('classifier', LogisticRegression())])
-lr_pipeline.fit(X_train, y_train)
-lr_preds = lr_pipeline.predict(X_test)
-
-# Modeling - Random Forest
-rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                              ('classifier', RandomForestClassifier(random_state=42))])
-rf_pipeline.fit(X_train, y_train)
-rf_preds = rf_pipeline.predict(X_test)
-
-# Evaluation Metrics
-def get_metrics(y_true, y_pred):
-    return {
-        "Accuracy": accuracy_score(y_true, y_pred),
-        "Precision": precision_score(y_true, y_pred),
-        "Recall": recall_score(y_true, y_pred)
-    }
-
-print("Logistic Regression Metrics:", get_metrics(y_test, lr_preds))
-print("Random Forest Metrics:", get_metrics(y_test, rf_preds))
-
-# Save the best model (e.g., Random Forest) for deployment
-joblib.dump(rf_pipeline, 'titanic_model.pkl')
+# 4. Make the prediction
+if st.button("Predict"):
+    prediction = model.predict(input_data)[0]
+    if prediction == 1:
+        st.success("The passenger is predicted to SURVIVE.")
+    else:
+        st.error("The passenger is predicted NOT to survive.")
 
 
 
