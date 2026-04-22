@@ -53,4 +53,12 @@ if st.button("Predict"):
     if prediction == 1:
         st.success("The passenger is predicted to SURVIVE.")
     else:
-        st.error("The passenger is predicted NOT to survive.")
+        st.error("The passenger is predicted NOT to survive.") 
+        # This single line converts user inputs into the exact format the model expects:
+# [Pclass_1, Pclass_2, Pclass_3, Sex_female, Sex_male, Age, Fare]
+features = [[1 if pclass==1 else 0, 1 if pclass==2 else 0, 1 if pclass==3 else 0, 
+             1 if sex=='female' else 0, 1 if sex=='male' else 0, age, fare]]
+
+if st.button("Predict"):
+    prediction = model.predict(features)[0]
+    # ... display result ...
