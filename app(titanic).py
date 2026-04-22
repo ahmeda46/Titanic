@@ -60,7 +60,7 @@ print("Random Forest Metrics:", get_metrics(y_test, rf_preds))
 # Save the best model (e.g., Random Forest) for deployment
 joblib.dump(rf_pipeline, 'titanic_model.pkl')
 
-!pip install streamlit
+pip install streamlit
 import streamlit as st
 import pandas as pd
 import joblib
