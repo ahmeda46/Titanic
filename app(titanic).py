@@ -10,7 +10,25 @@ Original file is located at
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 
+# --- MODEL LOADING ---
+model_path = 'titanic_model.pkl'
+
+if os.path.exists(model_path):
+    try:
+        model = joblib.load(model_path)
+    except Exception as e:
+        st.error(f"Error loading the model: {e}")
+        st.stop()
+else:
+    st.error(f"File '{model_path}' not found in the repository!")
+    st.stop()
+# ---------------------
+
+st.title("🚢 Titanic Survival Predictor")
+
+# ... rest of your code ...
 # 1. Load the model (This is all you need, no CSV required!)
 model = joblib.load('titanic_model.pkl')
 
