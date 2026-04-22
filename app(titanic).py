@@ -10,47 +10,47 @@ Original file is located at
 import streamlit as st
 import pandas as pd
 import joblib
-import os
+import numpy as np
 
-# --- MODEL LOADING ---
-model_path = 'titanic_model.pkl'
-
-if os.path.exists(model_path):
-    try:
-        model = joblib.load(model_path)
-    except Exception as e:
-        st.error(f"Error loading the model: {e}")
-        st.stop()
-else:
-    st.error(f"File '{model_path}' not found in the repository!")
-    st.stop()
-# ---------------------
+# 1. Load ONLY the "raw" classifier (make sure you saved JUST the model in your notebook)
+# If your .pkl still contains the whole pipeline, this might still error.
+# But try this code first:
+try:
+    model = joblib.load('titanic_model.pkl')
+except Exception as e:
+    st.error(f"Loading error: {e}")
 
 st.title("🚢 Titanic Survival Predictor")
 
-# ... rest of your code ...
-# 1. Load the model (This is all you need, no CSV required!)
-model = joblib.load('titanic_model.pkl')
-
-st.title("🚢 Titanic Survival Predictor")
-
-# 2. Create the input fields for the user
+# 2. Collect user inputs
 pclass = st.selectbox("Passenger Class", [1, 2, 3])
 sex = st.selectbox("Sex", ["male", "female"])
 age = st.slider("Age", 0, 100, 30)
 fare = st.number_input("Fare Paid", min_value=0.0, value=32.0)
 
-# 3. Put the inputs into a format the model understands
-input_data = pd.DataFrame([[pclass, sex, age, fare]], 
-                          columns=['Pclass', 'Sex', 'Age', 'Fare'])
+# 3. MANUAL PREPROCESSING (Replacing the ColumnTransformer)
+# We create the same columns that the OneHotEncoder would have created:
+# [Pclass_1, Pclass_2, Pclass_3, Sex_female, Sex_male, Age, Fare]
 
-# 4. Make the prediction
+# Initialize all as 0
+p1, p2, p3 = 0, 0, 0
+s_female, s_male = 0, 0
+
+# Set the correct "1" based on input
+if pclass == 1: p1 = 1
+elif pclass == 2: p2 = 1
+else: p3 = 1
+
+if sex == 'female': s_female = 1
+else: s_male = 1
+
+# 4. Create the final feature array
+# This must match the exact order your model was trained on!
+features = np.array([[p1, p2, p3, s_female, s_male, age, fare]])
+
 if st.button("Predict"):
-    prediction = model.predict(input_data)[0]
+    prediction = model.predict(features)[0]
     if prediction == 1:
         st.success("The passenger is predicted to SURVIVE.")
     else:
         st.error("The passenger is predicted NOT to survive.")
-
-
-
